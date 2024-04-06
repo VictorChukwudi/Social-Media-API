@@ -4,6 +4,7 @@ import { UserService } from "../services/user.services"
 import { PostService } from "../services/post.services"
 import { PostDto } from "../dto"
 import { fileUpload} from "../helpers/file.handler"
+import { paginateFeed } from "../helpers/util.functions"
 
 const createPost= async (req: Request, res:Response) => {
     try {
@@ -102,6 +103,7 @@ const createPost= async (req: Request, res:Response) => {
 const getMyPosts= async (req: Request, res:Response) => {
     try {
         const id: any= req["user"].id
+        const page: number= Number(req.query.page)
         const posts= await PostService.findPostsByCreatorId(id)
         let response: any[]= []
         posts.forEach(post=>{
@@ -117,10 +119,24 @@ const getMyPosts= async (req: Request, res:Response) => {
             response.push(postDto)
         })
 
-        res.status(200).json({
-            status:"success",
-            data:response
-        })
+        if(!page || page < 1){
+            res.status(200).json({
+                status:"success",
+                data:{
+                    posts: response
+                }
+            })
+        }else{
+            const {paginatedPosts, currentPage, totalPages}= paginateFeed(response, page)
+            res.status(200).json({
+                status:"success",
+                data:{
+                    posts: paginatedPosts,
+                    currentPage,
+                    totalPages
+                }
+            })
+        }
     } catch (error) {
         res.json({
             status:"error",
@@ -241,7 +257,6 @@ const getFeed= async (req: Request, res: Response) => {
                 
             })
         })
-        console.log(response);
         
         res.status(200).json({
             status:"success",
@@ -254,6 +269,70 @@ const getFeed= async (req: Request, res: Response) => {
         })
     }
 }
+
+const getPaginatedFeed= async (req: Request, res: Response) => {
+    try {
+        const userId= req["user"].id
+        const page: number= Number(req.query.page)
+        const existingUser= await UserService.findUserById(userId)
+        const followings: any[]= existingUser.following
+        const posts: any[]= []
+        for (const following of followings) {
+            const followingPosts= await PostService.findPostsByCreatorId(following)
+            posts.push(followingPosts)
+        }
+
+        const response: any[]= []
+        posts.forEach(userPosts=>{
+            userPosts.forEach(post=>{
+            
+            const postDto= new PostDto()
+            postDto.id= post._id
+            postDto.creatorId= post.creatorId
+            postDto.creator= post.creator
+            postDto.body= post.body
+            postDto.imageData= post.imageData
+            postDto.videoData= post.videoData
+            postDto.likes= post.likes.length
+            postDto.comments= post.comments
+            response.push(postDto)
+                
+            })
+        })
+
+        //if page is not provided, return all posts in response
+        if(!page  || page < 1){
+            console.log(response.length);
+            
+            res.status(200).json({
+                status:"success",
+                data:{
+                    posts: response
+                }
+            })
+        }else{
+            //if page is provided, return paginated posts in response
+            const {paginatedPosts, currentPage, totalPages }= paginateFeed(response, page, 5)
+            
+            res.status(200).json({
+                status:"success",
+                data:{
+                    posts: paginatedPosts,
+                    currentPage,
+                    totalPages
+                }
+            })
+        }
+
+       
+    } catch (error) {
+        res.status(500).json({
+            status:"error",
+            msg:error.message
+        })
+    }
+}
+
 
 const commentOnPost= async (req: Request, res: Response) => {
     try {
@@ -309,5 +388,6 @@ export{
     getSinglePost,
     likeOrUnlikePost,
     commentOnPost,
-    getFeed
+    getFeed,
+    getPaginatedFeed
 }
