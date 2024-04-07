@@ -1,5 +1,4 @@
 import Post from "../models/post.model";
-import paginate from "mongoose-paginate-v2"
 
 export class PostService{
     static async createPost(details: { creatorId: any; creator: string; body: string;

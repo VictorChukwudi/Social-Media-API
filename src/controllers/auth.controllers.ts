@@ -1,4 +1,5 @@
 import { Request, Response } from "express"
+import { io } from "../server"
 import { UserService } from "../services/user.services"
 import { Encrypt } from "../helpers/encrpt"
 import { UserDto } from "../dto"
@@ -69,6 +70,9 @@ const loginUser= async (req: Request, res: Response) => {
         response.lastName=user.lastName
         response.followers=user.followers
         response.following=user.following
+
+        
+        io.socketsJoin(response.id)
 
         res.status(200).json({
             status:"success",

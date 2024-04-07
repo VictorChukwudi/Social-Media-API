@@ -17,3 +17,9 @@ export class PostDto{
     likes: number;
     comments: {id: any, name: string, comment: string}[];
 }
+
+export class NotificationDto{
+    recipient: any;
+    message: string;
+    postId?: any;
+}

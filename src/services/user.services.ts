@@ -22,7 +22,7 @@ export class UserService{
         return user
     }
 
-    static async findUserById(id: string){
+    static async findUserById(id: any){
         const user= await User.findById(id)
         return user
     }

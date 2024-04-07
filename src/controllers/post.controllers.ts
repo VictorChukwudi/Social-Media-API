@@ -5,6 +5,8 @@ import { PostService } from "../services/post.services"
 import { PostDto } from "../dto"
 import { fileUpload} from "../helpers/file.handler"
 import { paginateFeed } from "../helpers/util.functions"
+import { NotificationService } from "../services/notification.service"
+import { io } from "../server"
 
 const createPost= async (req: Request, res:Response) => {
     try {
@@ -202,6 +204,7 @@ const likeOrUnlikePost= async (req: Request, res:Response) => {
         //check if user has already liked the post and unlike if true
         const likes: any[]=findPost.likes
         if(findPost.likes.includes(likerId)){
+            //Unlike if liked already
             const updateLikes=likes.filter(like=> like != likerId)
             
             await PostService.updatePost(postId, {likes: updateLikes})
@@ -211,8 +214,19 @@ const likeOrUnlikePost= async (req: Request, res:Response) => {
                 msg:`You unliked ${findPost.creator} post with id: ${postId}.`
             })
         }else{
+            //like if not liked already
             const updateLikes=[...likes, likerId]
             await PostService.updatePost(postId, {likes: updateLikes})
+
+            //create notification and send notification using socket.io
+            const recipientId= findPost.creatorId.toString()
+            const message=`${liker.firstName} ${liker.lastName} liked your post.`
+            const notification= await NotificationService.createNotification(findPost.creatorId, message)
+            const emittedNotification= {
+                recipient: notification.recipient,
+                message: notification.message
+            }
+            io.to(recipientId).emit("notification", emittedNotification)
 
             res.status(200).json({
                 status:"success",
@@ -367,6 +381,16 @@ const commentOnPost= async (req: Request, res: Response) => {
        response.videoData= updatedPost.videoData
        response.likes= updatedPost.likes.length
        response.comments= updatedPost.comments
+
+       //create notification and send notification using socket.io
+       const recipientId= findPost.creatorId.toString()
+       const message=`${commenter.firstName} ${commenter.lastName} commented on your post.`
+       const notification= await NotificationService.createNotification(findPost.creatorId, message, findPost._id)
+       const emittedNotification= {
+           recipient: notification.recipient,
+           message: notification.message
+       }
+       io.to(recipientId).emit("notification", emittedNotification)
 
         res.status(200).json({
             status:"success",
