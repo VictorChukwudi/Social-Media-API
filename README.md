@@ -1,6 +1,6 @@
 # Social Media API
 
-This project is a social media API built with Node.js, Express, Redis, and Socket.IO. It provides functionalities for user registration, login, post creation with text and media, following other users, commenting and liking posts, and real-time notifications using sockets.
+This project is a social media API built with Node.js, Express, Typescript, Redis, and Socket.IO. It provides functionalities for user registration, login, post creation with text and media, following other users, commenting and liking posts, and real-time notifications using sockets.
 
 ## Features
 
@@ -15,10 +15,18 @@ This project is a social media API built with Node.js, Express, Redis, and Socke
 
 - Node.js: JavaScript runtime environment for server-side development. (https://nodejs.org/en)
 - Express.js: Web framework for building APIs with Node.js. (https://expressjs.com/)
+- Typescript: Superset of JavaScript that adds static typing for improved code maintainability. (https://www.typescriptlang.org/docs)
 - Redis: In-memory, key-value data store for caching frequently accessed data. (https://redis.io/)
 - Socket.IO: Real-time communication library for enabling websockets. (https://socket.io/docs/v4/())
 - MongoDB: NoSQL database for storing user information, posts, and relationships. (https://www.mongodb.com/)
 - Cloudinary: Media store for storing images and videos.(https://cloudinary.com/documentation/node_quickstart)
+
+## Prerequisite
+1. Node.js and npm installed on your system.
+2. MongoDB Atlas with connection string.
+3. Redis on cloud with connection string.
+4. Cloudinary account with secrets and keys.
+   
 
 ## Installation
 1. Clone the repository
@@ -27,9 +35,10 @@ This project is a social media API built with Node.js, Express, Redis, and Socke
    ```
 2. Install dependencies
    ```
+   cd social-api
    npm install
    ```
-3. Configure environment variables
+3. Configure environment variables (.env file)
    ```
    PORT= your_server_port
    MONGODB_URI= mongodb_uri_from_atlas_or_local_mongodb
@@ -48,13 +57,13 @@ This project is a social media API built with Node.js, Express, Redis, and Socke
 - `POST /api/auth/register:` Register a new user.
 - `POST /api/auth/login:` Login an existing user.
   
-### User Actions
+### User Actions (Protected Using JWT)
 - `GET /api/users/:userId/follow:` Folow or unfollow a user.
 - `GET /api/users/notification:` A user get his/her followers.
 - `GET /api/users/followers:` A user get his/her followers.
 - `GET /api/users/followings: ` A user get users following him/her.
 
-### Post Actions
+### Post Actions (Protected Using JWT)
 - `GET /api/posts/:postId/like:` User likes or unlikes a post.
 - `GET /api/posts/personal:` User fetches all his/her posts.
 - `GET /api/posts/feed:` Users fetches all posts from those they follow
