@@ -3,14 +3,15 @@ import { commentOnPost, createPost, getFeed, getMyPosts, getPaginatedFeed, getSi
 import { upload } from "../config/multer"
 import validate from "../middlewares/validation"
 import { commentSchema, postSchema } from "../helpers/validators"
+import { FeedCache, MyPostsCache } from "../middlewares/cache"
 
 
 
 
 const router= express.Router()
 
-router.get("/", getPaginatedFeed)
-router.get("/personal", getMyPosts)
+router.get("/", [FeedCache], getPaginatedFeed)
+router.get("/personal", [MyPostsCache], getMyPosts)
 router.post("/create", [upload.fields([{name:"image"}, {name:"video"}]), validate(postSchema)], createPost)
 router.get("/:postId", getSinglePost)
 router.get("/:postId/like", likeOrUnlikePost)

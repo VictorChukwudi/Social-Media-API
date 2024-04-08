@@ -7,6 +7,7 @@ import { fileUpload} from "../helpers/file.handler"
 import { paginateFeed } from "../helpers/util.functions"
 import { NotificationService } from "../services/notification.service"
 import { io } from "../server"
+import { client } from "../config/redis"
 
 const createPost= async (req: Request, res:Response) => {
     try {
@@ -119,6 +120,13 @@ const getMyPosts= async (req: Request, res:Response) => {
             postDto.likes= post.likes.length
             postDto.comments= post.comments
             response.push(postDto)
+        });
+        
+        //cache response
+        const key=`${id}/posts`;
+        await client.set(key, JSON.stringify(response), {
+            EX:300,
+            NX:true
         })
 
         if(!page || page < 1){
@@ -314,9 +322,14 @@ const getPaginatedFeed= async (req: Request, res: Response) => {
             })
         })
 
+        //cache response
+        const key=`${userId}/feed`;
+        await client.set(key, JSON.stringify(response), {
+            EX:300,
+            NX:true
+        })
         //if page is not provided, return all posts in response
         if(!page  || page < 1){
-            console.log(response.length);
             
             res.status(200).json({
                 status:"success",
