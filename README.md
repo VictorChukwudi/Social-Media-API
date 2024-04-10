@@ -78,5 +78,4 @@ This project is a social media API built with Node.js, Express, Typescript, Redi
 4. Utilize the provided socket connections for real-time notifications on comments and likes.
    
 ## Documentation
-Click [here](https://documenter.getpostman.com/view/19721625/2sA35MxJGP) to get the full documentation of this API.# Social-Media-API
-# Social-Media-API
+Click [here](https://documenter.getpostman.com/view/19721625/2sA35MxJGP) to get the full documentation of this API.
