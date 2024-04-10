@@ -79,3 +79,4 @@ This project is a social media API built with Node.js, Express, Typescript, Redi
    
 ## Documentation
 Click [here](https://documenter.getpostman.com/view/19721625/2sA35MxJGP) to get the full documentation of this API.# Social-Media-API
+# Social-Media-API
